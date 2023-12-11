@@ -37,3 +37,23 @@ func (svc *CategoryService) CreateCategory(ctx context.Context, request *pb.Cate
 
 	return response, nil
 }
+
+func (svc *CategoryService) ListCategories(ctx context.Context, request *pb.EmptyMessage) (*pb.CategoryList, error) {
+	categoryList, err := svc.repo.FindAll()
+	if err != nil {
+		return nil, err
+	}
+
+	response := make([]*pb.Category, len(categoryList))
+	for k, category := range categoryList {
+		response[k] = &pb.Category{
+			Id:          category.ID,
+			Name:        category.Name,
+			Description: category.Description,
+		}
+	}
+
+	return &pb.CategoryList{
+		Categories: response,
+	}, nil
+}
