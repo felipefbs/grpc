@@ -26,5 +26,6 @@ message EmptyMessage{}
 
 service CategoryService {
     rpc CreateCategory(CategoryRequest) returns (CategoryResponse){}
+    rpc CreateCategoryStream(stream CategoryRequest) returns (CategoryList){}
     rpc ListCategories(EmptyMessage) returns (CategoryList) {}
 }

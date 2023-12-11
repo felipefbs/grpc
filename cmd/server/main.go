@@ -21,11 +21,11 @@ func main() {
 
 	defer db.Close()
 
-	_, err = db.Exec("CREATE TABLE categories (id string, name string, description string); CREATE UNIQUE INDEX category_name_index ON categories (name)")
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS categories (id string, name string, description string); CREATE UNIQUE INDEX category_name_index ON categories (name)")
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = db.Exec("CREATE TABLE courses (id string, name string, description string, category_id); CREATE UNIQUE INDEX course_name_index ON courses (name)")
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS  courses (id string, name string, description string, category_id); CREATE UNIQUE INDEX course_name_index ON courses (name)")
 	if err != nil {
 		log.Fatal(err)
 	}

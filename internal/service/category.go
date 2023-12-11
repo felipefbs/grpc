@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"io"
 	"log"
 
 	"github.com/felipefbs/grpc/internal/databases"
@@ -22,7 +23,7 @@ func (svc *CategoryService) CreateCategory(ctx context.Context, request *pb.Cate
 
 	category, err := svc.repo.Create(request.Name, request.Description)
 	if err != nil {
-		log.Println("failed to create category")
+		log.Println("failed to create category", err)
 
 		return nil, err
 	}
@@ -56,4 +57,30 @@ func (svc *CategoryService) ListCategories(ctx context.Context, request *pb.Empt
 	return &pb.CategoryList{
 		Categories: response,
 	}, nil
+}
+
+func (svc *CategoryService) CreateCategoryStream(stream pb.CategoryService_CreateCategoryStreamServer) error {
+	categories := &pb.CategoryList{}
+
+	for {
+		category, err := stream.Recv()
+		if err != nil {
+			if err == io.EOF {
+				return stream.SendAndClose(categories)
+			}
+
+			return err
+		}
+
+		createdCategory, err := svc.CreateCategory(stream.Context(), category)
+		if err != nil {
+			return err
+		}
+
+		categories.Categories = append(categories.Categories, &pb.Category{
+			Id:          createdCategory.Category.Id,
+			Name:        createdCategory.Category.Name,
+			Description: createdCategory.Category.Description,
+		})
+	}
 }
