@@ -84,3 +84,26 @@ func (svc *CategoryService) CreateCategoryStream(stream pb.CategoryService_Creat
 		})
 	}
 }
+
+func (svc *CategoryService) CreateCategoryStreamBidirectional(stream pb.CategoryService_CreateCategoryStreamBidirectionalServer) error {
+	for {
+		request, err := stream.Recv()
+		if err != nil {
+			if err == io.EOF {
+				return nil
+			}
+
+			return err
+		}
+
+		result, err := svc.CreateCategory(stream.Context(), request)
+		if err != nil {
+			return err
+		}
+
+		err = stream.Send(result.Category)
+		if err != nil {
+			return err
+		}
+	}
+}
